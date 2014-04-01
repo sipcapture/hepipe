@@ -1,4 +1,4 @@
-hepstream
+hepipe
 =========
 
 hep pipe application for logging
