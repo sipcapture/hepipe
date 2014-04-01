@@ -371,7 +371,7 @@ int read_from_pipe() {
 	printf("Correlation ID: %s\n", cid);
 	printf("DATA: %s\n", pch);
 		
-	correlation_id = pch;
+	correlation_id = cid;
 
 	if(dump_proto_packet(pch, strlen(pch), tsec, tusec, src_ip, dst_ip, sport, dport)) {
 	     
