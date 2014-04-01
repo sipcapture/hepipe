@@ -1,9 +1,10 @@
 hepipe
-=========
+=======
 
-HEP-pipe: application for logging data to HEP server
+## Description:
+HEPipe (pronounced HEP-pipe) is an application for logging data to HEP server
 
-#Usage
+##Usage
 
 ```
 timesec;timeusec;correlationid;source_ip;source_port;destination_ip;destinaton_port;payload in json
