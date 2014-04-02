@@ -347,7 +347,7 @@ int read_from_pipe() {
 		
 		/* dst ip */
 		pch = strtok(NULL, ";");
-		if(pch) snprintf(src_ip, 256, "%s", pch);
+		if(pch) snprintf(dst_ip, 256, "%s", pch);
 		else goto error;
 		
 		/* dport */
