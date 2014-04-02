@@ -110,7 +110,6 @@ void usage(int8_t e) {
 
 void handler(int value)
 {
-	fprintf(stderr, "The agent has been terminated\n");
 	if(sock) close(sock);
         exit(0);
 }
