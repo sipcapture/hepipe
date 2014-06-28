@@ -4,6 +4,15 @@ hepipe
 ## Description:
 HEPipe (pronounced HEP-pipe) is an application for logging data to HEP server
 
+##Compilation
+###Linux
+    cc -o hepipe hepipe.c -lpcap 
+
+###Solaris
+    cc -o hepipe hepipe.c -lpcap -lsocket
+    NOTE: Please make sure that your compiler is gcc or understands the packet attribute for structure
+
+
 ##Usage
 
 ```
