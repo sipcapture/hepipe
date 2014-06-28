@@ -1,8 +1,8 @@
-hepipe
+HEPipe
 =======
 
 ## Description:
-HEPipe (pronounced HEP-pipe) is an application for logging data to HEP server
+HEPipe (pronounced HEP-pipe) is an application for logging arbitrary data (ie: logs) to a HEP/EEP capture server
 
 ##Compilation:
 ###Linux
