@@ -366,15 +366,16 @@ int read_from_pipe() {
 	}
 
 	
-	printf("TIME: %d.%d\n", tsec, tusec);
-	printf("Correlation ID: %s\n", cid);
-	printf("DATA: %s\n", pch);
+	printf("TIME: %d.%d | ", tsec, tusec);
+	printf("CID: %s | ", cid);
+	printf("DATA: %s | STATUS: ", pch);
 		
 	correlation_id = cid;
 
 	if(dump_proto_packet(pch, strlen(pch), tsec, tusec, src_ip, dst_ip, sport, dport)) {
-	     
-	     printf("Duplicated!\n");	
+	     printf("SENT\n");	
+	} else {
+	     printf("FAILED\n");
 	}
 	
 	return 1;
