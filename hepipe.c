@@ -374,8 +374,6 @@ int read_from_pipe() {
 
 	if(dump_proto_packet(pch, strlen(pch), tsec, tusec, src_ip, dst_ip, sport, dport)) {
 	     printf("SENT\n");	
-	} else {
-	     printf("FAILED\n");
 	}
 	
 	return 1;
@@ -398,8 +396,8 @@ int dump_proto_packet(unsigned char *data, uint32_t len, uint32_t tsec, uint32_t
 
         rcinfo->src_port   = sport;
         rcinfo->dst_port   = dport;
-        rcinfo->src_ip     = ip_src;
-        rcinfo->dst_ip     = ip_dst;
+        rcinfo->src_ip     = (char *)ip_src;
+        rcinfo->dst_ip     = (char *)ip_dst;
         rcinfo->ip_family  = AF_INET;
         rcinfo->ip_proto   = 17;
         rcinfo->time_sec   = tsec;
@@ -408,7 +406,7 @@ int dump_proto_packet(unsigned char *data, uint32_t len, uint32_t tsec, uint32_t
 
 	/* Duplcate */
 	if(!send_hep_basic(rcinfo, data, (unsigned int) len)) {
-	         printf("Not duplicated\n");
+	         printf("FAILED\n");
         }
         
         if(rcinfo) free(rcinfo);
