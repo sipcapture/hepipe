@@ -353,7 +353,7 @@ int read_from_pipe() {
 		strcat(content, buffer);
 	}
 
-	printf("JOAP!: %s\n", content);
+	// printf("JOAP!: %s\n", content);
 			
 	if(content && adv == 0) {
 		
@@ -440,7 +440,7 @@ int read_from_pipe() {
 		
 	printf("TIME: %d.%d | ", tsec, tusec);
 	printf("CID: %s | ", cid);			
-	printf("DATA: %s | STATUS: ", pch);
+	printf("DATA: %d/%d | STATUS: ", val1, val2);
 		
 	correlation_id = cid;
 
