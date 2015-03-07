@@ -95,6 +95,7 @@ void usage(int8_t e) {
            "      -V  is custom chunks id\n"           
            "      -s  is the capture server\n"
            "      -p  is use specified port of capture server. i.e. 9060\n"
+           "  	  -P  is the capture password\n"
            "      -c  is checkout\n"
            "      -i  is capture identifity. Must be a 16-bit number. I.e: 101\n"
            "      -H  is HEP protocol version [1|2|3]. By default we use HEP version 3\n"
@@ -111,6 +112,7 @@ void usage(int8_t e) {
            "   -K  is vendor chunk id\n"           
            "   -V  is custom chunks id\n"           
            "   -s  is the capture server\n"
+           "   -P  is the capture password\n"
            "   -p  is use specified port of capture server. i.e. 9060\n"
            "   -c  is checkout\n"
            "   -i  is capture identifity. Must be a 16-bit number. I.e: 101\n"
@@ -148,9 +150,9 @@ int main(int argc,char **argv)
                 {0, 0, 0, 0}
         };
 	        
-        while((c=getopt_long(argc, argv, "avhcp:s:c:f:i:H:C:K:V:", long_options, NULL))!=-1) {
+        while((c=getopt_long(argc, argv, "avhcp:s:c:f:i:H:C:K:V:P:", long_options, NULL))!=-1) {
 #else
-        while((c=getopt(argc, argv, "avhcp:s:c:f:t:i:H:C:K:V:"))!=EOF) {
+        while((c=getopt(argc, argv, "avhcp:s:c:f:t:i:H:C:K:V:P:"))!=EOF) {
 #endif
                 switch(c) {
 #ifdef USE_CONFFILE
@@ -164,6 +166,9 @@ int main(int argc,char **argv)
                         case 'p':
                                         capt_port = optarg;
                                         break;
+                        case 'P':
+                                        capt_password = optarg;
+                                        break;                                        
                         case 'h':
                                         usage(0);
                                         break;
