@@ -6,6 +6,8 @@
  *
  *  Author: Alexandr Dubovikov <alexandr.dubovikov@gmail.com> 
  *  (C) 2014 (http://www.sipcapture.org)
+ *  Author: Lorenzo Mangani <lorenzo.mangani@gmail.com> 
+ *  (C) 2015 (http://www.sipcapture.org)
  *
  * Homer Stream agent is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
