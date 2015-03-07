@@ -1,4 +1,4 @@
-#define VERSION "1.0.0 dev"
+#define VERSION "1.0.3 dev"
 #define DEFAULT_CONFIG "/usr/local/etc/hepipe/hepipe.ini"
 
 #define PROTO_SIP    0x01
