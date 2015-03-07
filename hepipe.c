@@ -540,13 +540,13 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
     memcpy(hg->header.id, "\x48\x45\x50\x33", 4);
 
     /* IP proto */
-    hg->ip_family.chunk.vendor_id = htons(chunk_vendor_id);
+    hg->ip_family.chunk.vendor_id = htons(0x0000);
     hg->ip_family.chunk.type_id   = htons(0x0001);
     hg->ip_family.data = rcinfo->ip_family;
     hg->ip_family.chunk.length = htons(sizeof(hg->ip_family));
     
     /* Proto ID */
-    hg->ip_proto.chunk.vendor_id = htons(chunk_vendor_id);
+    hg->ip_proto.chunk.vendor_id = htons(0x0000);
     hg->ip_proto.chunk.type_id   = htons(0x0002);
     hg->ip_proto.data = rcinfo->ip_proto;
     hg->ip_proto.chunk.length = htons(sizeof(hg->ip_proto));
@@ -555,13 +555,13 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
     /* IPv4 */
     if(rcinfo->ip_family == AF_INET) {
         /* SRC IP */
-        src_ip4.chunk.vendor_id = htons(chunk_vendor_id);
+        src_ip4.chunk.vendor_id = htons(0x0000);
         src_ip4.chunk.type_id   = htons(0x0003);
         inet_pton(AF_INET, rcinfo->src_ip, &src_ip4.data);
         src_ip4.chunk.length = htons(sizeof(src_ip4));            
         
         /* DST IP */
-        dst_ip4.chunk.vendor_id = htons(chunk_vendor_id);
+        dst_ip4.chunk.vendor_id = htons(0x0000);
         dst_ip4.chunk.type_id   = htons(0x0004);
         inet_pton(AF_INET, rcinfo->dst_ip, &dst_ip4.data);        
         dst_ip4.chunk.length = htons(sizeof(dst_ip4));
@@ -572,13 +572,13 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
       /* IPv6 */
     else if(rcinfo->ip_family == AF_INET6) {
         /* SRC IPv6 */
-        src_ip6.chunk.vendor_id = htons(chunk_vendor_id);
+        src_ip6.chunk.vendor_id = htons(0x0000);
         src_ip6.chunk.type_id   = htons(0x0005);
         inet_pton(AF_INET6, rcinfo->src_ip, &src_ip6.data);
         src_ip6.chunk.length = htonl(sizeof(src_ip6));
         
         /* DST IPv6 */
-        dst_ip6.chunk.vendor_id = htons(chunk_vendor_id);
+        dst_ip6.chunk.vendor_id = htons(0x0000);
         dst_ip6.chunk.type_id   = htons(0x0006);
         inet_pton(AF_INET6, rcinfo->dst_ip, &dst_ip6.data);
         dst_ip6.chunk.length = htonl(sizeof(dst_ip6));    
@@ -588,56 +588,58 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
 #endif
         
     /* SRC PORT */
-    hg->src_port.chunk.vendor_id = htons(chunk_vendor_id);
+    hg->src_port.chunk.vendor_id = htons(0x0000);
     hg->src_port.chunk.type_id   = htons(0x0007);
     hg->src_port.data = htons(rcinfo->src_port);
     hg->src_port.chunk.length = htons(sizeof(hg->src_port));
     
     /* DST PORT */
-    hg->dst_port.chunk.vendor_id = htons(chunk_vendor_id);
+    hg->dst_port.chunk.vendor_id = htons(0x0000);
     hg->dst_port.chunk.type_id   = htons(0x0008);
     hg->dst_port.data = htons(rcinfo->dst_port);
     hg->dst_port.chunk.length = htons(sizeof(hg->dst_port));
     
     
     /* TIMESTAMP SEC */
-    hg->time_sec.chunk.vendor_id = htons(chunk_vendor_id);
+    hg->time_sec.chunk.vendor_id = htons(0x0000);
     hg->time_sec.chunk.type_id   = htons(0x0009);
     hg->time_sec.data = htonl(rcinfo->time_sec);
     hg->time_sec.chunk.length = htons(sizeof(hg->time_sec));
     
 
     /* TIMESTAMP USEC */
-    hg->time_usec.chunk.vendor_id = htons(chunk_vendor_id);
+    hg->time_usec.chunk.vendor_id = htons(0x0000);
     hg->time_usec.chunk.type_id   = htons(0x000a);
     hg->time_usec.data = htonl(rcinfo->time_usec);
     hg->time_usec.chunk.length = htons(sizeof(hg->time_usec));
     
     /* Protocol TYPE */
-    hg->proto_t.chunk.vendor_id = htons(chunk_vendor_id);
+    hg->proto_t.chunk.vendor_id = htons(0x0000);
     hg->proto_t.chunk.type_id   = htons(0x000b);
     hg->proto_t.data = rcinfo->proto_type;
     hg->proto_t.chunk.length = htons(sizeof(hg->proto_t));
     
     /* Capture ID */
-    hg->capt_id.chunk.vendor_id = htons(chunk_vendor_id);
+    hg->capt_id.chunk.vendor_id = htons(0x0000);
     hg->capt_id.chunk.type_id   = htons(0x000c);
     hg->capt_id.data = htons(captid);
     hg->capt_id.chunk.length = htons(sizeof(hg->capt_id));
 
     /* Payload */
-    payload_chunk.vendor_id = htons(chunk_vendor_id);
+    payload_chunk.vendor_id = htons(0x0000);
     payload_chunk.type_id   = htons(0x000f);
     payload_chunk.length    = htons(sizeof(payload_chunk) + len);
     
     tlen = sizeof(struct hep_generic) + len + iplen + sizeof(hep_chunk_t);
+
+    printf("JOPA: %s\n",capt_password);
 
     /* auth key */
     if(capt_password != NULL) {
 
           tlen += sizeof(hep_chunk_t);
           /* Auth key */
-          authkey_chunk.vendor_id = htons(chunk_vendor_id);
+          authkey_chunk.vendor_id = htons(0x0000);
           authkey_chunk.type_id   = htons(0x000e);
           authkey_chunk.length    = htons(sizeof(authkey_chunk) + strlen(capt_password));
           tlen += strlen(capt_password);
@@ -647,7 +649,7 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
     if(correlation_id != NULL) {
           tlen += sizeof(hep_chunk_t);
           /* Auth key */
-          correlation_chunk.vendor_id = htons(chunk_vendor_id);
+          correlation_chunk.vendor_id = htons(0x0000);
           correlation_chunk.type_id   = htons(0x0011);
           correlation_chunk.length    = htons(sizeof(correlation_chunk) + strlen(correlation_id));
           tlen += strlen(correlation_id);
