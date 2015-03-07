@@ -146,9 +146,9 @@ int main(int argc,char **argv)
                 {0, 0, 0, 0}
         };
 	        
-        while((c=getopt_long(argc, argv, "avhcp:s:c:f:i:H:C:V:", long_options, NULL))!=-1) {
+        while((c=getopt_long(argc, argv, "avhcp:s:c:f:i:H:C:K:V:", long_options, NULL))!=-1) {
 #else
-        while((c=getopt(argc, argv, "avhcp:s:c:f:t:i:H:C:V:"))!=EOF) {
+        while((c=getopt(argc, argv, "avhcp:s:c:f:t:i:H:C:K:V:"))!=EOF) {
 #endif
                 switch(c) {
 #ifdef USE_CONFFILE
