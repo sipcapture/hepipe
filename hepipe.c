@@ -73,8 +73,12 @@ int hepversion = 3;
 char *capt_password = NULL;
 char *correlation_id = NULL;
 uint8_t link_offset = 14;
+uint8_t chunk_vendor_id = 0;
+uint8_t val1_chunk = 0;
+uint8_t val2_chunk = 0;
 /* logging TYPE */
 int proto_type = 100;
+int adv = 0;
 
 
 void usage(int8_t e) {
@@ -119,8 +123,9 @@ int main(int argc,char **argv)
 {
         int mode, c, checkout=0, heps=0;
         struct addrinfo *ai, hints[1] = {{ 0 }};
-        char *capt_host = NULL, *capt_port = NULL;
-	uint16_t snaplen = 65535, promisc = 1, to = 100;
+        char *capt_host = NULL, *capt_port = NULL, *chunk_vals = NULL;
+	uint16_t snaplen = 65535, promisc = 1, to = 100;	
+	char *dav = NULL;
 
 #ifdef USE_CONFFILE
 
@@ -133,9 +138,9 @@ int main(int argc,char **argv)
                 {0, 0, 0, 0}
         };
 	        
-        while((c=getopt_long(argc, argv, "vhcp:s:c:f:i:H:C:", long_options, NULL))!=-1) {
+        while((c=getopt_long(argc, argv, "avhcp:s:c:f:i:H:C:V:", long_options, NULL))!=-1) {
 #else
-        while((c=getopt(argc, argv, "vhcp:s:c:f:t:i:H:C:"))!=EOF) {
+        while((c=getopt(argc, argv, "avhcp:s:c:f:t:i:H:C:V:"))!=EOF) {
 #endif
                 switch(c) {
 #ifdef USE_CONFFILE
@@ -155,6 +160,10 @@ int main(int argc,char **argv)
                         case 'c':
                                         checkout=1;
                                         break;                                                                                
+                        case 'a':
+                                        adv=1;
+                                        break;                                                                                                                        
+                                        
                         case 'v':
                                         printf("version: %s\n", VERSION);
 #ifdef USE_HEP2
@@ -171,7 +180,13 @@ int main(int argc,char **argv)
                         case 'H':
                                         hepversion = atoi(optarg);
 					heps=1;
-                                        break;                                                     
+                                        break;                                                    
+                        case 'K':
+                                        chunk_vendor_id = atoi(optarg);
+                                        break;                                                                                             
+                        case 'V':
+                                        chunk_vals = optarg;
+                                        break;                                                                                                                                     
 	                default:
                                         abort();
                 }
@@ -270,6 +285,20 @@ int main(int argc,char **argv)
 #endif
                 return 0;
         }        
+        
+        
+        if(chunk_vals)
+        {        
+            /* useconds */
+            dav = strtok(chunk_vals, ":");
+            if(dav) {
+                val1_chunk = atoi(dav);
+                val2_chunk = atoi(++dav);
+            }           
+            else {
+               val1_chunk = atoi(chunk_vals);
+            }        
+        }        
 
 	read_from_pipe();
 
@@ -284,11 +313,13 @@ int read_from_pipe() {
 	char buffer[BUF_SIZE];
 	char cid[256];
         size_t contentSize = 1; // includes NULL
-	char *pch = NULL;
+	char *pch = NULL, *tmpval = NULL;
 	unsigned int offset;
 	unsigned int tsec=0, tusec=0;
-	char src_ip[256], dst_ip[256], sport = 0, dport=0;
-                       
+	char src_ip[256], dst_ip[256];
+	uint16_t sport = 1, dport=2, val1=0, val2=0;
+       	struct timeval tv;
+       	                               
 	char *content = malloc(sizeof(char) * BUF_SIZE);
 	if(content == NULL)
 	{
@@ -313,11 +344,10 @@ int read_from_pipe() {
 		}
 		strcat(content, buffer);
 	}
-		
-	
-	printf("ZZZ %s\n",content);
-		
-	if(content) {
+
+	printf("JOAP!: %s\n", content);
+			
+	if(content && adv == 0) {
 		
 		/* seconds */
 		pch = strtok(content, ";");
@@ -358,6 +388,40 @@ int read_from_pipe() {
 		pch = strtok(NULL, ";");
 		if(!pch) goto error;	
 	}	
+	else if(content && adv == 1) 
+	{
+	        /* gettimeofday(&tv,NULL);
+	        tsec = tv.tv_sec;
+	        tusec = tv.tv_usec
+	        */
+	        
+	        /* seconds */
+		pch = strtok(content, ";");
+		if(pch) tsec = atoi(pch);
+		else goto error;	
+		
+		/* useconds */
+		pch = strtok(NULL, ";");
+		if(pch) tusec = atoi(pch);
+		else goto error;	
+		
+                /* correlation id */
+		pch = strtok(NULL, ";");
+		if(pch) snprintf(cid, 256, "%s", pch);
+		else goto error;
+		
+		pch = strtok(NULL, ";");
+		if(pch) val1= atoi(pch);
+		else goto error;
+		
+		pch = strtok(NULL, ";");
+		if(pch) val2=atoi(pch);
+		else goto error;
+		
+		snprintf(src_ip, 256, "127.0.0.20");
+	        snprintf(dst_ip, 256, "127.0.0.30");
+	
+	}
 
 	if(ferror(stdin))
 	{
@@ -365,14 +429,14 @@ int read_from_pipe() {
 		perror("Error reading from stdin.");
 	}
 
-	
+		
 	printf("TIME: %d.%d | ", tsec, tusec);
-	printf("CID: %s | ", cid);
+	printf("CID: %s | ", cid);			
 	printf("DATA: %s | STATUS: ", pch);
 		
 	correlation_id = cid;
 
-	if(dump_proto_packet(pch, strlen(pch), tsec, tusec, src_ip, dst_ip, sport, dport)) {
+	if(dump_proto_packet(pch, strlen(pch), tsec, tusec, src_ip, dst_ip, sport, dport, val1, val2)) {
 	     printf("SENT\n");	
 	}
 	
@@ -386,7 +450,7 @@ int read_from_pipe() {
 }
 
 
-int dump_proto_packet(unsigned char *data, uint32_t len, uint32_t tsec, uint32_t tusec,  const char *ip_src, const char *ip_dst, uint16_t sport, uint16_t dport) {
+int dump_proto_packet(unsigned char *data, uint32_t len, uint32_t tsec, uint32_t tusec,  const char *ip_src, const char *ip_dst, uint16_t sport, uint16_t dport, uint16_t val1, uint16_t val2) {
 
 	char timebuffer[30];	
 	rc_info_t *rcinfo = NULL;
@@ -403,6 +467,8 @@ int dump_proto_packet(unsigned char *data, uint32_t len, uint32_t tsec, uint32_t
         rcinfo->time_sec   = tsec;
         rcinfo->time_usec  = tusec;
         rcinfo->proto_type = proto_type;
+        rcinfo->val1 = val1;
+        rcinfo->val2 = val2;
 
 	/* Duplcate */
 	if(!send_hep_basic(rcinfo, data, (unsigned int) len)) {
@@ -449,6 +515,7 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
     hep_chunk_t payload_chunk;
     hep_chunk_t authkey_chunk;
     hep_chunk_t correlation_chunk;
+    hep_chunk_uint16_t chunk_val1, chunk_val2;
     static int errors = 0;
 
     hg = malloc(sizeof(struct hep_generic));
@@ -458,13 +525,13 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
     memcpy(hg->header.id, "\x48\x45\x50\x33", 4);
 
     /* IP proto */
-    hg->ip_family.chunk.vendor_id = htons(0x0000);
+    hg->ip_family.chunk.vendor_id = htons(chunk_vendor_id);
     hg->ip_family.chunk.type_id   = htons(0x0001);
     hg->ip_family.data = rcinfo->ip_family;
     hg->ip_family.chunk.length = htons(sizeof(hg->ip_family));
     
     /* Proto ID */
-    hg->ip_proto.chunk.vendor_id = htons(0x0000);
+    hg->ip_proto.chunk.vendor_id = htons(chunk_vendor_id);
     hg->ip_proto.chunk.type_id   = htons(0x0002);
     hg->ip_proto.data = rcinfo->ip_proto;
     hg->ip_proto.chunk.length = htons(sizeof(hg->ip_proto));
@@ -473,13 +540,13 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
     /* IPv4 */
     if(rcinfo->ip_family == AF_INET) {
         /* SRC IP */
-        src_ip4.chunk.vendor_id = htons(0x0000);
+        src_ip4.chunk.vendor_id = htons(chunk_vendor_id);
         src_ip4.chunk.type_id   = htons(0x0003);
         inet_pton(AF_INET, rcinfo->src_ip, &src_ip4.data);
         src_ip4.chunk.length = htons(sizeof(src_ip4));            
         
         /* DST IP */
-        dst_ip4.chunk.vendor_id = htons(0x0000);
+        dst_ip4.chunk.vendor_id = htons(chunk_vendor_id);
         dst_ip4.chunk.type_id   = htons(0x0004);
         inet_pton(AF_INET, rcinfo->dst_ip, &dst_ip4.data);        
         dst_ip4.chunk.length = htons(sizeof(dst_ip4));
@@ -490,13 +557,13 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
       /* IPv6 */
     else if(rcinfo->ip_family == AF_INET6) {
         /* SRC IPv6 */
-        src_ip6.chunk.vendor_id = htons(0x0000);
+        src_ip6.chunk.vendor_id = htons(chunk_vendor_id);
         src_ip6.chunk.type_id   = htons(0x0005);
         inet_pton(AF_INET6, rcinfo->src_ip, &src_ip6.data);
         src_ip6.chunk.length = htonl(sizeof(src_ip6));
         
         /* DST IPv6 */
-        dst_ip6.chunk.vendor_id = htons(0x0000);
+        dst_ip6.chunk.vendor_id = htons(chunk_vendor_id);
         dst_ip6.chunk.type_id   = htons(0x0006);
         inet_pton(AF_INET6, rcinfo->dst_ip, &dst_ip6.data);
         dst_ip6.chunk.length = htonl(sizeof(dst_ip6));    
@@ -506,45 +573,45 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
 #endif
         
     /* SRC PORT */
-    hg->src_port.chunk.vendor_id = htons(0x0000);
+    hg->src_port.chunk.vendor_id = htons(chunk_vendor_id);
     hg->src_port.chunk.type_id   = htons(0x0007);
     hg->src_port.data = htons(rcinfo->src_port);
     hg->src_port.chunk.length = htons(sizeof(hg->src_port));
     
     /* DST PORT */
-    hg->dst_port.chunk.vendor_id = htons(0x0000);
+    hg->dst_port.chunk.vendor_id = htons(chunk_vendor_id);
     hg->dst_port.chunk.type_id   = htons(0x0008);
     hg->dst_port.data = htons(rcinfo->dst_port);
     hg->dst_port.chunk.length = htons(sizeof(hg->dst_port));
     
     
     /* TIMESTAMP SEC */
-    hg->time_sec.chunk.vendor_id = htons(0x0000);
+    hg->time_sec.chunk.vendor_id = htons(chunk_vendor_id);
     hg->time_sec.chunk.type_id   = htons(0x0009);
     hg->time_sec.data = htonl(rcinfo->time_sec);
     hg->time_sec.chunk.length = htons(sizeof(hg->time_sec));
     
 
     /* TIMESTAMP USEC */
-    hg->time_usec.chunk.vendor_id = htons(0x0000);
+    hg->time_usec.chunk.vendor_id = htons(chunk_vendor_id);
     hg->time_usec.chunk.type_id   = htons(0x000a);
     hg->time_usec.data = htonl(rcinfo->time_usec);
     hg->time_usec.chunk.length = htons(sizeof(hg->time_usec));
     
     /* Protocol TYPE */
-    hg->proto_t.chunk.vendor_id = htons(0x0000);
+    hg->proto_t.chunk.vendor_id = htons(chunk_vendor_id);
     hg->proto_t.chunk.type_id   = htons(0x000b);
     hg->proto_t.data = rcinfo->proto_type;
     hg->proto_t.chunk.length = htons(sizeof(hg->proto_t));
     
     /* Capture ID */
-    hg->capt_id.chunk.vendor_id = htons(0x0000);
+    hg->capt_id.chunk.vendor_id = htons(chunk_vendor_id);
     hg->capt_id.chunk.type_id   = htons(0x000c);
     hg->capt_id.data = htons(captid);
     hg->capt_id.chunk.length = htons(sizeof(hg->capt_id));
 
     /* Payload */
-    payload_chunk.vendor_id = htons(0x0000);
+    payload_chunk.vendor_id = htons(chunk_vendor_id);
     payload_chunk.type_id   = htons(0x000f);
     payload_chunk.length    = htons(sizeof(payload_chunk) + len);
     
@@ -555,7 +622,7 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
 
           tlen += sizeof(hep_chunk_t);
           /* Auth key */
-          authkey_chunk.vendor_id = htons(0x0000);
+          authkey_chunk.vendor_id = htons(chunk_vendor_id);
           authkey_chunk.type_id   = htons(0x000e);
           authkey_chunk.length    = htons(sizeof(authkey_chunk) + strlen(capt_password));
           tlen += strlen(capt_password);
@@ -565,12 +632,30 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
     if(correlation_id != NULL) {
           tlen += sizeof(hep_chunk_t);
           /* Auth key */
-          correlation_chunk.vendor_id = htons(0x0000);
+          correlation_chunk.vendor_id = htons(chunk_vendor_id);
           correlation_chunk.type_id   = htons(0x0011);
           correlation_chunk.length    = htons(sizeof(correlation_chunk) + strlen(correlation_id));
           tlen += strlen(correlation_id);
     }
-
+    
+    /* val1 */
+    if(chunk_vendor_id != 0 && val1_chunk != 0) {
+          tlen += sizeof(hep_chunk_uint16_t);
+          chunk_val1.chunk.vendor_id = htons(chunk_vendor_id);
+          chunk_val1.chunk.type_id   = htons(val1_chunk);
+          chunk_val1.data = htons(rcinfo->val1);
+          chunk_val1.chunk.length = htons(sizeof(hep_chunk_uint16_t));
+    }
+    
+    /* val2 */
+    if(chunk_vendor_id != 0 && val2_chunk != 0) {
+          tlen += sizeof(hep_chunk_uint16_t);
+          chunk_val2.chunk.vendor_id = htons(chunk_vendor_id);
+          chunk_val2.chunk.type_id   = htons(val2_chunk);
+          chunk_val2.data = htons(rcinfo->val2);
+          chunk_val2.chunk.length = htons(sizeof(hep_chunk_uint16_t));
+    }
+    
     /* total */
     hg->header.length = htons(tlen);
 
@@ -626,7 +711,22 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
         memcpy((void*) buffer+buflen, correlation_id, strlen(correlation_id));
         buflen+=strlen(correlation_id);
     }
-
+    
+    
+    /* val1 */
+    if(chunk_vendor_id != 0 && val1_chunk != 0) {
+          
+          memcpy((void*) buffer+buflen, &chunk_val1,  sizeof(chunk_val1));
+          buflen += sizeof(hep_chunk_uint16_t);
+    }
+    
+    /* val2 */
+    if(chunk_vendor_id != 0 && val2_chunk != 0) {
+          
+          memcpy((void*) buffer+buflen, &chunk_val2,  sizeof(chunk_val2));
+          buflen += sizeof(hep_chunk_uint16_t);
+    }
+    
     /* PAYLOAD CHUNK */
     memcpy((void*) buffer+buflen, &payload_chunk,  sizeof(struct hep_chunk));
     buflen +=  sizeof(struct hep_chunk);            

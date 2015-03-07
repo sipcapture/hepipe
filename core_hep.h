@@ -44,6 +44,8 @@ struct rc_info {
     uint16_t    dst_port;
     uint32_t    time_sec;
     uint32_t    time_usec;
+    uint16_t    val1;
+    uint16_t    val2;
 } ;
 
 typedef struct rc_info rc_info_t;
