@@ -308,7 +308,8 @@ int main(int argc,char **argv)
             dav = strtok(chunk_vals, ":");
             if(dav) {
                 val1_chunk = atoi(dav);
-                val2_chunk = atoi(++dav);
+                chunk_vals+=(strlen(dav)+1);
+                val2_chunk = atoi(chunk_vals);     
             }           
             else {
                val1_chunk = atoi(chunk_vals);
@@ -631,8 +632,6 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
     payload_chunk.length    = htons(sizeof(payload_chunk) + len);
     
     tlen = sizeof(struct hep_generic) + len + iplen + sizeof(hep_chunk_t);
-
-    printf("JOPA: %s\n",capt_password);
 
     /* auth key */
     if(capt_password != NULL) {
