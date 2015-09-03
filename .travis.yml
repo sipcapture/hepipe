@@ -9,5 +9,5 @@ install:
   - sudo apt-get install libpcap-dev
 
 script:
-  - cc -o hepipe hepipe.c -lpcap 
+  - sudo cc -o hepipe hepipe.c -lpcap 
   - ./hepipe.h
