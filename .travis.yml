@@ -1,0 +1,13 @@
+language: c
+
+compiler:
+  - gcc
+
+install: 
+  - sudo apt-get update || true
+  - sudo apt-get install build-essential
+  - sudo apt-get install libpcap-dev
+
+script:
+  - cc -o hepipe hepipe.c -lpcap 
+  - ./hepipe.h
