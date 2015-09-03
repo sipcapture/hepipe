@@ -1,3 +1,5 @@
+![Build_Status](https://travis-ci.org/sipcapture/hepipe.svg?branch=master)
+
 HEPipe
 =======
 
