@@ -10,4 +10,4 @@ install:
 
 script:
   - sudo cc -o hepipe hepipe.c -lpcap 
-  - ./hepipe.h
+  - ./hepipe -h
