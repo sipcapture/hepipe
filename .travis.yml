@@ -11,3 +11,6 @@ install:
 script:
   - sudo cc -o hepipe hepipe.c -lpcap 
   - ./hepipe -h
+
+notifications:
+  slack: qxip:WuEGMSIAa8KEX6iL2zN2bZbv
