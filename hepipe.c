@@ -344,6 +344,7 @@ int read_from_pipe() {
 	}
 
 	content[0] = '\0'; // make null-terminated
+	cid[0] = '\0';
 	
 	correlation_id = NULL;
 	
@@ -447,10 +448,11 @@ int read_from_pipe() {
 
 		
 	printf("TIME: %d.%d | ", tsec, tusec);
-	printf("CID: %s | ", cid);			
+	printf("CID: %s | ", cid ? cid : "NULL");			
 	printf("DATA: %d/%d | STATUS: ", val1, val2);
-		
-	correlation_id = cid;
+	
+	/* check our correlation */	
+	if(cid && strlen(cid) > 0) correlation_id = cid;
 
 	if(dump_proto_packet(pch, strlen(pch), tsec, tusec, src_ip, dst_ip, sport, dport, val1, val2)) {
 	     printf("SENT\n");	
