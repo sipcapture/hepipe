@@ -361,8 +361,6 @@ int read_from_pipe() {
 		}
 		strcat(content, buffer);
 	}
-
-	// printf("JOAP!: %s\n", content);
 			
 	if(content && adv == 0) {
 		
@@ -447,9 +445,10 @@ int read_from_pipe() {
 	}
 
 		
-	printf("TIME: %d.%d | ", tsec, tusec);
-	printf("CID: %s | ", cid ? cid : "NULL");			
-	printf("DATA: %d/%d | STATUS: ", val1, val2);
+	printf("\nTIME: %d.%d | ", tsec, tusec);
+	printf("\nCID: %s | ", cid ? cid : "NULL");			
+	printf("\nPort: source: %d, destination: %d", sport, dport);			
+	printf("\nDATA: %d/%d | STATUS: ", val1, val2);
 	
 	/* check our correlation */	
 	if(cid && strlen(cid) > 0) correlation_id = cid;
