@@ -592,13 +592,13 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
     /* SRC PORT */
     hg->src_port.chunk.vendor_id = htons(0x0000);
     hg->src_port.chunk.type_id   = htons(0x0007);
-    hg->src_port.data = htons(rcinfo->src_port);
+    hg->src_port.data = rcinfo->src_port;
     hg->src_port.chunk.length = htons(sizeof(hg->src_port));
     
     /* DST PORT */
     hg->dst_port.chunk.vendor_id = htons(0x0000);
     hg->dst_port.chunk.type_id   = htons(0x0008);
-    hg->dst_port.data = htons(rcinfo->dst_port);
+    hg->dst_port.data = rcinfo->dst_port;
     hg->dst_port.chunk.length = htons(sizeof(hg->dst_port));
     
     
