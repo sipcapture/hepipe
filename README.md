@@ -5,7 +5,7 @@ HEPipe
 
 ## Description:
 
-HEPipe *(pronounced HEP-pipe)* is an application for logging arbitrary data *(ie: logs, cdrs, debug lines)* to a *HEP/EEP* capture server such as [HOMER](https://github.com/sipcapture/homer) or [PCAPTURE](http://pcapture.com)
+HEPipe *(pronounced HEP-pipe)* is an application for logging arbitrary data *(ie: logs, cdrs, debug lines)* to a *HEP/EEP* capture server such as [HOMER](https://github.com/sipcapture/homer) or [HEPIC](http://hepic.tel)
 
 ## Compilation:
 
