@@ -752,9 +752,9 @@ int send_hepv3 (rc_info_t *rcinfo, unsigned char *data, unsigned int len) {
     memcpy((void*) buffer+buflen, data, len);    
     buflen+=len;    
 
-    /* send this packet out of our socket */
-    // codeql[cpp/cleartext-transmission]: HEP/EEP carries the capture auth key in-band (chunk 0x000e); use a private network or tunnel to the collector.
-    send(sock, buffer, buflen, 0); 
+    /* send this packet out of our socket (HEP auth key chunk 0x000e is in-band by spec) */
+    // codeql[cpp/cleartext-transmission]
+    send(sock, buffer, buflen, 0); // lgtm[cpp/cleartext-transmission] 
             
     /* FREE */        
     if(buffer) free(buffer);
