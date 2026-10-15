@@ -7,6 +7,10 @@ HEPipe
 
 HEPipe *(pronounced HEP-pipe)* is an application for logging arbitrary data *(ie: logs, cdrs, debug lines)* to a *HEP/EEP* capture server such as [HOMER](https://github.com/sipcapture/homer) or [HEPIC](http://hepic.tel)
 
+## Security
+
+The optional capture password (`-P`) is embedded in HEPv3 as an authentication key chunk and sent to the collector over UDP in the same datagram as the rest of the packet. That matches the HEP/EEP on-the-wire format; it is not TLS-encrypted by this agent. Run hepipe on trusted networks or use VPN/IPsec/wire encryption between the host and the capture server if the auth key or payloads are sensitive.
+
 ## Compilation:
 
 ### Linux
